@@ -1,6 +1,7 @@
 package com.softserve.careactivities.controllers;
 
 import com.google.cloud.Timestamp;
+import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.dto.CareActivityFullDTO;
 import com.softserve.careactivities.domain.dto.CareActivitySimpleDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
@@ -33,7 +34,7 @@ public class CareActivitiesController {
     }
 
     @GetMapping("/active")
-    public List<CareActivity> getAllActiveCareActivities() {
+    public List<CareActivityExtendedDTO> getAllActiveCareActivities() {
         return careActivityService.getAllActiveCareActivities();
     }
 

@@ -1,9 +1,12 @@
 package com.softserve.careactivities.services.implementations;
 
+import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
+import com.softserve.careactivities.domain.mappers.CareActivityMapper;
 import com.softserve.careactivities.feign_clients.PatientsClient;
 import com.softserve.careactivities.repositories.CareActivityRepository;
 import com.softserve.careactivities.services.CareActivityService;
+import com.softserve.careactivities.utils.CheckAgeUtil;
 import com.softserve.careactivities.utils.exceptions.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
@@ -21,6 +24,8 @@ public class CareActivityServiceImpl implements CareActivityService {
 
     private final PatientsClient patientsClient;
 
+    private final CareActivityMapper careActivityMapper;
+
     @Override
     public List<CareActivity> getAll() {
         return (List<CareActivity>) careActivityRepository.findAll();
@@ -33,10 +38,18 @@ public class CareActivityServiceImpl implements CareActivityService {
     }
 
     @Override
-    public List<CareActivity> getAllActiveCareActivities() {
-        return getAll().stream()
+    public List<CareActivityExtendedDTO> getAllActiveCareActivities() {
+        List<CareActivityExtendedDTO> activeCA = getAll().stream()
                 .filter(i -> i.getState().equals(CareActivity.StateEnum.ACTIVE))
+                .map(careActivityMapper::CAtoExtendedDTO)
                 .collect(Collectors.toList());
+
+        activeCA.forEach(p -> p.setIsPatientPediatric(CheckAgeUtil
+                .checkIsPatientPediatric(patientsClient
+                        .getPatientByMPI(p.getMasterPatientIdentifier())
+                        .getDateOfBirth())));
+
+        return activeCA;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.softserve.careactivities.services;
 
+import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
 
 import java.util.List;
@@ -8,7 +9,7 @@ public interface CareActivityService {
 
     List<CareActivity> getAll();
 
-    List<CareActivity> getAllActiveCareActivities();
+    List<CareActivityExtendedDTO> getAllActiveCareActivities();
 
     List<CareActivity> getAllDeclinedCareActivities();
 
