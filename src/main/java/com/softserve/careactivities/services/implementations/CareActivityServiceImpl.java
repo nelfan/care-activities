@@ -1,7 +1,6 @@
 package com.softserve.careactivities.services.implementations;
 
 import com.softserve.careactivities.domain.entities.CareActivity;
-import com.softserve.careactivities.domain.mappers.CareActivityMapper;
 import com.softserve.careactivities.feign_clients.PatientsClient;
 import com.softserve.careactivities.repositories.CareActivityRepository;
 import com.softserve.careactivities.services.CareActivityService;
@@ -31,6 +30,13 @@ public class CareActivityServiceImpl implements CareActivityService {
     public CareActivity getCareActivityById(String id) {
         return careActivityRepository.findById(id)
                 .orElseThrow(() -> new CustomEntityNotFoundException(CareActivity.class));
+    }
+
+    @Override
+    public List<CareActivity> getAllActiveCareActivities() {
+        return getAll().stream()
+                .filter(i -> i.getState().equals(CareActivity.StateEnum.ACTIVE))
+                .collect(Collectors.toList());
     }
 
     @Override

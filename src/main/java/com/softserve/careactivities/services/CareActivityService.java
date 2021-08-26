@@ -8,6 +8,8 @@ public interface CareActivityService {
 
     List<CareActivity> getAll();
 
+    List<CareActivity> getAllActiveCareActivities();
+
     List<CareActivity> getAllDeclinedCareActivities();
 
     CareActivity getCareActivityById(String id);

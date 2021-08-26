@@ -32,6 +32,11 @@ public class CareActivitiesController {
         return careActivityService.getAll();
     }
 
+    @GetMapping("/active")
+    public List<CareActivity> getAllActiveCareActivities() {
+        return careActivityService.getAllActiveCareActivities();
+    }
+
     @GetMapping("/declined")
     public List<CareActivity> getAllDeclinedCareActivities() {
         return careActivityService.getAllDeclinedCareActivities();
