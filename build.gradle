@@ -1,0 +1,41 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.3'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'com.softserve'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    mapstructVersion = "1.4.2.Final"
+}
+
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter:2.5.3'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.3'
+    implementation 'com.google.cloud:spring-cloud-gcp-starter-data-spanner:2.0.4'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:3.0.3'
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.5.3'
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0-rc1'
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs = [
+            '-Amapstruct.suppressGeneratorTimestamp=true'
+    ]
+}
+
+test {
+    useJUnitPlatform()
+}
