@@ -1,5 +1,6 @@
 package com.softserve.careactivities.domain.mappers;
 
+import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.dto.CareActivityFullDTO;
 import com.softserve.careactivities.domain.dto.CareActivitySimpleDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
@@ -15,4 +16,8 @@ public interface CareActivityMapper {
     CareActivity fullDTOToCA(CareActivityFullDTO careActivityFullDTO);
 
     CareActivityFullDTO CAToFullDTO(CareActivity careActivity);
+
+    CareActivityExtendedDTO CAtoExtendedDTO(CareActivity careActivity);
+
+    CareActivity extendedDTOToCA(CareActivityExtendedDTO careActivityExtendedDTO);
 }
