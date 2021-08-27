@@ -1,8 +1,7 @@
 package com.softserve.careactivities.controllers;
 
-import com.google.cloud.Timestamp;
+import com.softserve.careactivities.domain.dto.CareActivityDTO;
 import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
-import com.softserve.careactivities.domain.dto.CareActivityFullDTO;
 import com.softserve.careactivities.domain.dto.CareActivitySimpleDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
 import com.softserve.careactivities.domain.mappers.CareActivityMapper;
@@ -14,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -29,7 +29,7 @@ public class CareActivitiesController {
     private final PatientsClient patientsClient;
 
     @GetMapping()
-    public List<CareActivity> getAllCareActivities() {
+    public List<CareActivityDTO> getAllCareActivities() {
         return careActivityService.getAll();
     }
 
@@ -39,39 +39,39 @@ public class CareActivitiesController {
     }
 
     @GetMapping("/declined")
-    public List<CareActivity> getAllDeclinedCareActivities() {
+    public List<CareActivityDTO> getAllDeclinedCareActivities() {
         return careActivityService.getAllDeclinedCareActivities();
     }
 
     @GetMapping("/declined/{MPI}")
-    public List<CareActivity> getAllDeclinedCareActivitiesForPatientByMPI(@PathVariable String MPI) {
+    public List<CareActivityDTO> getAllDeclinedCareActivitiesForPatientByMPI(@PathVariable String MPI) {
         return careActivityService.getDeclinedCareActivitiesForPatientByMpi(MPI);
     }
 
     @GetMapping("/{careActivityId}")
-    public CareActivity getCareActivityById(@PathVariable String careActivityId) {
+    public CareActivityDTO getCareActivityById(@PathVariable String careActivityId) {
         return careActivityService.getCareActivityById(careActivityId);
     }
 
     @PostMapping()
-    public ResponseEntity<CareActivityFullDTO> createCareActivity(@RequestBody CareActivitySimpleDTO careActivitySimpleDTO) {
+    public ResponseEntity<CareActivityDTO> createCareActivity(@RequestBody CareActivitySimpleDTO careActivitySimpleDTO) {
         CareActivity careActivity = careActivityMapper.careActivitySimpleDTOToCA(careActivitySimpleDTO);
-        careActivity.setCreateDateTimeGMT(Timestamp.now());
+        careActivity.setCreateDateTimeGMT(LocalDateTime.now());
 
         careActivityService.create(careActivity);
 
-        CareActivityFullDTO careActivityDTO = careActivityMapper.CAToFullDTO(careActivity);
+        CareActivityDTO careActivityDTO = careActivityMapper.CAToCADTO(careActivity);
         return new ResponseEntity<>(careActivityDTO, HttpStatus.CREATED);
     }
 
     @PutMapping()
-    public ResponseEntity<CareActivityFullDTO> updateCareActivity(@RequestBody CareActivitySimpleDTO careActivitySimpleDTO) {
+    public ResponseEntity<CareActivityDTO> updateCareActivity(@RequestBody CareActivitySimpleDTO careActivitySimpleDTO) {
         CareActivity careActivity = careActivityMapper.careActivitySimpleDTOToCA(careActivitySimpleDTO);
-        careActivity.setUpdateDateTimeGMT(Timestamp.now());
+        careActivity.setUpdateDateTimeGMT(LocalDateTime.now());
 
         careActivityService.update(careActivity);
 
-        CareActivityFullDTO careActivityDTO = careActivityMapper.CAToFullDTO(careActivity);
+        CareActivityDTO careActivityDTO = careActivityMapper.CAToCADTO(careActivity);
 
         return new ResponseEntity<>(careActivityDTO, HttpStatus.CREATED);
     }

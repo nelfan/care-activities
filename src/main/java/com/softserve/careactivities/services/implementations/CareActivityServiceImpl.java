@@ -1,5 +1,6 @@
 package com.softserve.careactivities.services.implementations;
 
+import com.softserve.careactivities.domain.dto.CareActivityDTO;
 import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
 import com.softserve.careactivities.domain.mappers.CareActivityMapper;
@@ -27,13 +28,15 @@ public class CareActivityServiceImpl implements CareActivityService {
     private final CareActivityMapper careActivityMapper;
 
     @Override
-    public List<CareActivity> getAll() {
-        return (List<CareActivity>) careActivityRepository.findAll();
+    public List<CareActivityDTO> getAll() {
+        List<CareActivity> careActivities = (List<CareActivity>) careActivityRepository.findAll();
+        return careActivities.stream().map(careActivityMapper::CAToCADTO).collect(Collectors.toList());
     }
 
     @Override
-    public CareActivity getCareActivityById(String id) {
+    public CareActivityDTO getCareActivityById(String id) {
         return careActivityRepository.findById(id)
+                .map(careActivityMapper::CAToCADTO)
                 .orElseThrow(() -> new CustomEntityNotFoundException(CareActivity.class));
     }
 
@@ -41,7 +44,7 @@ public class CareActivityServiceImpl implements CareActivityService {
     public List<CareActivityExtendedDTO> getAllActiveCareActivities() {
         List<CareActivityExtendedDTO> activeCA = getAll().stream()
                 .filter(i -> i.getState().equals(CareActivity.StateEnum.ACTIVE))
-                .map(careActivityMapper::CAtoExtendedDTO)
+                .map(careActivityMapper::CADTOToExtendedDTO)
                 .collect(Collectors.toList());
 
         activeCA.forEach(p -> p.setIsPatientPediatric(CheckAgeUtil
@@ -53,14 +56,14 @@ public class CareActivityServiceImpl implements CareActivityService {
     }
 
     @Override
-    public List<CareActivity> getAllDeclinedCareActivities() {
+    public List<CareActivityDTO> getAllDeclinedCareActivities() {
         return getAll().stream()
                 .filter(i -> i.getState().equals(CareActivity.StateEnum.DECLINED))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<CareActivity> getDeclinedCareActivitiesForPatientByMpi(String mpi) {
+    public List<CareActivityDTO> getDeclinedCareActivitiesForPatientByMpi(String mpi) {
         return getAllDeclinedCareActivities().stream()
                 .filter(i -> i.getMasterPatientIdentifier()
                         .equals(mpi))
@@ -85,7 +88,7 @@ public class CareActivityServiceImpl implements CareActivityService {
     @Override
     public CareActivity update(CareActivity careActivity) {
         try {
-            CareActivity existingCareActivity = getCareActivityById(careActivity.getCareActivityId());
+            CareActivity existingCareActivity = careActivityMapper.CADTOtoCA(getCareActivityById(careActivity.getCareActivityId()));
             patientsClient.getPatientByMPI(existingCareActivity.getMasterPatientIdentifier());
 
             existingCareActivity.setCareActivityComment(careActivity.getCareActivityComment());
