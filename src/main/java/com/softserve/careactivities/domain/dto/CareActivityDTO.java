@@ -7,7 +7,7 @@ import lombok.Data;
 import java.time.ZonedDateTime;
 
 @Data
-public class CareActivityExtendedDTO {
+public class CareActivityDTO {
 
     private String careActivityId;
     private String masterPatientIdentifier;
@@ -19,5 +19,4 @@ public class CareActivityExtendedDTO {
     private ZonedDateTime updateDateTimeGMT;
     private String careActivityComment;
     private CareActivity.StateEnum state;
-    private Boolean isPatientPediatric;
 }

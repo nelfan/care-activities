@@ -1,12 +1,13 @@
 package com.softserve.careactivities.domain.entities;
 
-import com.google.cloud.Timestamp;
 import com.google.cloud.spring.data.spanner.core.mapping.Column;
 import com.google.cloud.spring.data.spanner.core.mapping.PrimaryKey;
 import com.google.cloud.spring.data.spanner.core.mapping.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -22,10 +23,10 @@ public class CareActivity {
     private String masterPatientIdentifier;
 
     @Column(name = "CREATE_DATE_TIME_GMT")
-    private Timestamp createDateTimeGMT;
+    private LocalDateTime createDateTimeGMT;
 
     @Column(name = "UPDATE_DATE_TIME_GMT")
-    private Timestamp updateDateTimeGMT;
+    private LocalDateTime updateDateTimeGMT;
 
     @Column(name = "CARE_ACTIVITY_COMMENT")
     private String careActivityComment;
