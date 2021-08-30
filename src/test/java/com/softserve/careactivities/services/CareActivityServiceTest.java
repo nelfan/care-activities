@@ -1,6 +1,7 @@
 package com.softserve.careactivities.services;
 
 import com.softserve.careactivities.domain.dto.CareActivityDTO;
+import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
 import com.softserve.careactivities.domain.entities.Patient;
 import com.softserve.careactivities.domain.mappers.CareActivityMapper;
@@ -43,9 +44,14 @@ class CareActivityServiceTest {
     @InjectMocks
     CareActivityServiceImpl careActivityService;
 
+    @Mock
+    CareActivityServiceImpl careActivityServiceMock;
+
     static CareActivity careActivity;
 
     static CareActivityDTO careActivityDTO;
+
+    static CareActivityExtendedDTO careActivityExtendedDTO;
 
     static Patient patient;
 
@@ -56,6 +62,8 @@ class CareActivityServiceTest {
     static List<CareActivity> careActivityList;
 
     static List<CareActivityDTO> careActivityDTOList;
+
+    static List<CareActivityExtendedDTO> extendedDTOList;
 
     @BeforeEach
     public void setUp() {
@@ -80,6 +88,15 @@ class CareActivityServiceTest {
         careActivityDTO.setCreateDateTimeGMT(zonedDateTime);
         careActivityDTO.setUpdateDateTimeGMT(zonedDateTime);
         careActivityDTO.setState(CareActivity.StateEnum.ACTIVE);
+
+        careActivityExtendedDTO = new CareActivityExtendedDTO();
+        careActivityExtendedDTO.setCareActivityId("12345");
+        careActivityExtendedDTO.setCareActivityComment("comment");
+        careActivityExtendedDTO.setMasterPatientIdentifier("MPI");
+        careActivityExtendedDTO.setCreateDateTimeGMT(zonedDateTime);
+        careActivityExtendedDTO.setUpdateDateTimeGMT(zonedDateTime);
+        careActivityExtendedDTO.setState(CareActivity.StateEnum.ACTIVE);
+        careActivityExtendedDTO.setIsPatientPediatric(true);
 
         patient = new Patient();
         patient.setMpi("MPI");
@@ -110,6 +127,19 @@ class CareActivityServiceTest {
             careActivityDTOList.add(careActivityDTO);
         }
 
+        extendedDTOList = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            CareActivityExtendedDTO careActivityExtendedDTO = new CareActivityExtendedDTO();
+            careActivityExtendedDTO.setCareActivityId("id_" + i);
+            careActivityExtendedDTO.setMasterPatientIdentifier("MPI_" + i);
+            careActivityExtendedDTO.setCreateDateTimeGMT(zonedDateTime);
+            careActivityExtendedDTO.setUpdateDateTimeGMT(zonedDateTime);
+            careActivityExtendedDTO.setCareActivityComment("Comment_" + i);
+            careActivityExtendedDTO.setState(CareActivity.StateEnum.ACTIVE);
+            careActivityExtendedDTO.setIsPatientPediatric(true);
+            extendedDTOList.add(careActivityExtendedDTO);
+        }
+
     }
 
     @AfterEach
@@ -136,6 +166,30 @@ class CareActivityServiceTest {
         }
         verify(careActivityRepository, times(1)).findAll();
     }
+
+//    @Test
+//    void shouldGetAllActiveCareActivities() {
+//        List<CareActivityDTO> actual = careActivityDTOList;
+//        List<CareActivityExtendedDTO> actualExtList = extendedDTOList;
+//
+//        actualExtList.get(0).setIsPatientPediatric(false);
+//
+//
+//        when(careActivityServiceMock.getAll()).thenReturn(actual);
+//
+//        for (int i = 0; i < actual.size(); i++) {
+//            when(careActivityMapper.CADTOToExtendedDTO(actual.get(i))).thenReturn(actualExtList.get(i));
+//        }
+//
+//        System.out.println(actualExtList);
+//        System.out.println(actual);
+//
+//        List<CareActivityExtendedDTO> test = careActivityService.getAllActiveCareActivities();
+//
+//        System.out.println(test);
+//
+//        assertEquals(test.size(), 4);
+//    }
 
     @Test
     void shouldGetCareActivityById() throws CustomEntityNotFoundException {
@@ -245,14 +299,32 @@ class CareActivityServiceTest {
             when(careActivityRepository.findById(expected.getCareActivityId())).thenReturn(Optional.of(expected));
             when(careActivityMapper.CAToCADTO(expected)).thenReturn(expectedDTO);
 
-            System.out.println(expected.getCareActivityId());
-            System.out.println(expectedDTO.getCareActivityId());
-
             CareActivityDTO actual = careActivityService.getCareActivityById(expected.getCareActivityId());
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             careActivityService.delete(actual.getCareActivityId());
         });
+    }
+
+    @Test
+    void shouldGetAllDeclinedCareActivities() {
+        List<CareActivity> careActivities = careActivityList;
+        List<CareActivityDTO> expected = careActivityDTOList;
+
+        expected.get(0).setState(CareActivity.StateEnum.DECLINED);
+        expected.get(1).setState(CareActivity.StateEnum.DECLINED);
+
+        when(careActivityRepository.findAll()).thenReturn(careActivities);
+
+        for (int i = 0; i < careActivities.size(); i++) {
+            when(careActivityMapper.CAToCADTO(careActivities.get(i))).thenReturn(expected.get(i));
+        }
+
+        List<CareActivityDTO> actual = careActivityService.getAllDeclinedCareActivities();
+
+        assertEquals(actual.size(), 2);
+        verify(careActivityRepository, times(1)).findAll();
+
     }
 }
