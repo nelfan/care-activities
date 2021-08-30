@@ -53,6 +53,10 @@ class CareActivityServiceTest {
 
     static ZonedDateTime zonedDateTime;
 
+    static List<CareActivity> careActivityList;
+
+    static List<CareActivityDTO> careActivityDTOList;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -82,6 +86,30 @@ class CareActivityServiceTest {
         patient.setDateOfBirth(LocalDate.of(2000, 10, 10));
         patient.setActive(true);
 
+        careActivityList = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            CareActivity careActivity = new CareActivity();
+            careActivity.setCareActivityId("id_" + i);
+            careActivity.setMasterPatientIdentifier("MPI_" + i);
+            careActivity.setCreateDateTimeGMT(LocalDateTime.now());
+            careActivity.setUpdateDateTimeGMT(LocalDateTime.now());
+            careActivity.setCareActivityComment("Comment_" + i);
+            careActivity.setState(CareActivity.StateEnum.ACTIVE);
+            careActivityList.add(careActivity);
+        }
+
+        careActivityDTOList = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            CareActivityDTO careActivityDTO = new CareActivityDTO();
+            careActivityDTO.setCareActivityId("id_" + i);
+            careActivityDTO.setMasterPatientIdentifier("MPI_" + i);
+            careActivityDTO.setCreateDateTimeGMT(zonedDateTime);
+            careActivityDTO.setUpdateDateTimeGMT(zonedDateTime);
+            careActivityDTO.setCareActivityComment("Comment_" + i);
+            careActivityDTO.setState(CareActivity.StateEnum.ACTIVE);
+            careActivityDTOList.add(careActivityDTO);
+        }
+
     }
 
     @AfterEach
@@ -92,23 +120,22 @@ class CareActivityServiceTest {
 
     @Test
     void shouldGetAllCareActivities() {
-        List<CareActivity> careActivities = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            CareActivity careActivity = new CareActivity();
-            careActivity.setCareActivityId("id_" + i);
-            careActivity.setMasterPatientIdentifier("MPI_" + i);
-            careActivity.setCreateDateTimeGMT(LocalDateTime.now());
-            careActivity.setUpdateDateTimeGMT(LocalDateTime.now());
-            careActivity.setCareActivityComment("Comment_" + i);
-            careActivity.setState(CareActivity.StateEnum.ACTIVE);
-            careActivities.add(careActivity);
+        List<CareActivity> careActivities = careActivityList;
+
+        List<CareActivityDTO> careActivityDTOS = careActivityDTOList;
+
+
+        for (int i = 0; i < careActivityList.size(); i++) {
+            when(careActivityMapper.CAToCADTO(careActivityList.get(i))).thenReturn(careActivityDTOList.get(i));
         }
 
-        when(careActivityRepository.findAll()).thenReturn(careActivities);
+        when(careActivityRepository.findAll()).thenReturn(careActivityList);
+        List<CareActivityDTO> actual = careActivityService.getAll();
 
-        List<CareActivityDTO> careActivityDTOList = careActivityService.getAll();
-
-        assertEquals(3, careActivityDTOList.size());
+        assertEquals(4, actual.size());
+        for (int i = 0; i < actual.size(); i++) {
+            assertEquals(actual.get(i), careActivityDTOList.get(i));
+        }
         verify(careActivityRepository, times(1)).findAll();
     }
 
