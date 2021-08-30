@@ -9,6 +9,7 @@ import com.softserve.careactivities.repositories.CareActivityRepository;
 import com.softserve.careactivities.services.implementations.CareActivityServiceImpl;
 import com.softserve.careactivities.utils.exceptions.CustomEntityFailedToCreate;
 import com.softserve.careactivities.utils.exceptions.CustomEntityNotFoundException;
+import com.softserve.careactivities.utils.exceptions.CustomFailedToDeleteEntityException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -147,7 +148,6 @@ class CareActivityServiceTest {
 
     @Test
     void shouldThrowCustomEntityFailedToCreateException() {
-
         Assertions.assertThrows(CustomEntityFailedToCreate.class, () -> {
             CareActivity ca = careActivity;
 
@@ -210,4 +210,24 @@ class CareActivityServiceTest {
         verify(careActivityRepository, times(1)).deleteById(actual.getCareActivityId());
     }
 
+    @Test
+    void shouldThrowCustomFailedToDeleteExceptionWhenCareActivityDoesntExist() {
+        Assertions.assertThrows(CustomFailedToDeleteEntityException.class, () -> {
+            CareActivity expected = careActivity;
+            expected.setCareActivityId("unknown_id");
+            CareActivityDTO expectedDTO = careActivityDTO;
+
+            when(careActivityRepository.findById(expected.getCareActivityId())).thenReturn(Optional.of(expected));
+            when(careActivityMapper.CAToCADTO(expected)).thenReturn(expectedDTO);
+
+            System.out.println(expected.getCareActivityId());
+            System.out.println(expectedDTO.getCareActivityId());
+
+            CareActivityDTO actual = careActivityService.getCareActivityById(expected.getCareActivityId());
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            careActivityService.delete(actual.getCareActivityId());
+        });
+    }
 }
