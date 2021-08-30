@@ -88,7 +88,9 @@ public class CareActivityServiceImpl implements CareActivityService {
     @Override
     public CareActivity update(CareActivity careActivity) {
         try {
-            CareActivity existingCareActivity = careActivityMapper.CADTOtoCA(getCareActivityById(careActivity.getCareActivityId()));
+            //CareActivity existingCareActivity = careActivityMapper.CADTOtoCA(getCareActivityById(careActivity.getCareActivityId()));
+            CareActivityDTO existingCareActivityDTO = getCareActivityById(careActivity.getCareActivityId());
+            CareActivity existingCareActivity = careActivityMapper.CADTOtoCA(existingCareActivityDTO);
             patientsClient.getPatientByMPI(existingCareActivity.getMasterPatientIdentifier());
 
             existingCareActivity.setCareActivityComment(careActivity.getCareActivityComment());

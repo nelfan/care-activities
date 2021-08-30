@@ -121,20 +121,18 @@ class CareActivityServiceTest {
     @Test
     void shouldGetAllCareActivities() {
         List<CareActivity> careActivities = careActivityList;
-
         List<CareActivityDTO> careActivityDTOS = careActivityDTOList;
 
-
-        for (int i = 0; i < careActivityList.size(); i++) {
-            when(careActivityMapper.CAToCADTO(careActivityList.get(i))).thenReturn(careActivityDTOList.get(i));
+        for (int i = 0; i < careActivities.size(); i++) {
+            when(careActivityMapper.CAToCADTO(careActivities.get(i))).thenReturn(careActivityDTOS.get(i));
         }
 
-        when(careActivityRepository.findAll()).thenReturn(careActivityList);
+        when(careActivityRepository.findAll()).thenReturn(careActivities);
         List<CareActivityDTO> actual = careActivityService.getAll();
 
         assertEquals(4, actual.size());
         for (int i = 0; i < actual.size(); i++) {
-            assertEquals(actual.get(i), careActivityDTOList.get(i));
+            assertEquals(actual.get(i), careActivityDTOS.get(i));
         }
         verify(careActivityRepository, times(1)).findAll();
     }
