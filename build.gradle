@@ -28,6 +28,8 @@ dependencies {
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0-rc1'
+    testImplementation(platform('org.junit:junit-bom:5.7.2'))
+    testImplementation('org.junit.jupiter:junit-jupiter:5.7.2')
 }
 
 tasks.withType(JavaCompile) {
@@ -38,4 +40,7 @@ tasks.withType(JavaCompile) {
 
 test {
     useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
