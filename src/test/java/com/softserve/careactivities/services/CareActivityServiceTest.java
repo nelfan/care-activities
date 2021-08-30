@@ -157,8 +157,57 @@ class CareActivityServiceTest {
             when(patientsClient.getPatientByMPI(ca.getMasterPatientIdentifier())).thenReturn(inactivePatient);
 
             careActivityService.create(ca);
-
         });
+    }
+
+    @Test
+    void shouldUpdateCareActivity() {
+        CareActivity expected = careActivity;
+        CareActivityDTO expectedDTO = careActivityDTO;
+
+        when(careActivityRepository.findById(expected.getCareActivityId())).thenReturn(Optional.of(expected));
+        when(careActivityMapper.CAToCADTO(expected)).thenReturn(expectedDTO);
+
+        CareActivityDTO actual = careActivityService.getCareActivityById(expected.getCareActivityId());
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        Patient pa = patient;
+
+        CareActivity caSaved = careActivity;
+        CareActivity caUpdated = careActivity;
+
+        when(careActivityMapper.CADTOtoCA(actual)).thenReturn(caSaved);
+
+        when(patientsClient.getPatientByMPI(caSaved.getMasterPatientIdentifier())).thenReturn(pa);
+
+        when(careActivityRepository.save(caSaved)).thenReturn(caUpdated);
+
+        CareActivity actualCA = careActivityService.update(caSaved);
+
+        assertEquals(caSaved, actualCA);
+
+        verify(careActivityRepository, times(1)).save(caSaved);
+        verify(careActivityRepository, times(1)).save(caUpdated);
+    }
+
+    @Test
+    void shouldDeleteCareActivity() {
+
+        CareActivity expected = careActivity;
+        CareActivityDTO expectedDTO = careActivityDTO;
+
+        when(careActivityRepository.findById(expected.getCareActivityId())).thenReturn(Optional.of(expected));
+        when(careActivityMapper.CAToCADTO(expected)).thenReturn(expectedDTO);
+
+        CareActivityDTO actual = careActivityService.getCareActivityById(expected.getCareActivityId());
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        Boolean isDeleted = careActivityService.delete(actual.getCareActivityId());
+
+        assertEquals(isDeleted, true);
+        verify(careActivityRepository, times(1)).deleteById(actual.getCareActivityId());
     }
 
 }
