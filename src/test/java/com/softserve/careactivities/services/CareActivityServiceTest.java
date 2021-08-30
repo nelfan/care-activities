@@ -145,4 +145,20 @@ class CareActivityServiceTest {
         verify(careActivityRepository, times(1)).save(ca);
     }
 
+    @Test
+    void shouldThrowCustomEntityFailedToCreateException() {
+
+        Assertions.assertThrows(CustomEntityFailedToCreate.class, () -> {
+            CareActivity ca = careActivity;
+
+            Patient inactivePatient = patient;
+            inactivePatient.setActive(false);
+
+            when(patientsClient.getPatientByMPI(ca.getMasterPatientIdentifier())).thenReturn(inactivePatient);
+
+            careActivityService.create(ca);
+
+        });
+    }
+
 }
