@@ -166,31 +166,7 @@ class CareActivityServiceTest {
         }
         verify(careActivityRepository, times(1)).findAll();
     }
-
-//    @Test
-//    void shouldGetAllActiveCareActivities() {
-//        List<CareActivityDTO> actual = careActivityDTOList;
-//        List<CareActivityExtendedDTO> actualExtList = extendedDTOList;
-//
-//        actualExtList.get(0).setIsPatientPediatric(false);
-//
-//
-//        when(careActivityServiceMock.getAll()).thenReturn(actual);
-//
-//        for (int i = 0; i < actual.size(); i++) {
-//            when(careActivityMapper.CADTOToExtendedDTO(actual.get(i))).thenReturn(actualExtList.get(i));
-//        }
-//
-//        System.out.println(actualExtList);
-//        System.out.println(actual);
-//
-//        List<CareActivityExtendedDTO> test = careActivityService.getAllActiveCareActivities();
-//
-//        System.out.println(test);
-//
-//        assertEquals(test.size(), 4);
-//    }
-
+    
     @Test
     void shouldGetCareActivityById() throws CustomEntityNotFoundException {
         CareActivity expected = careActivity;
@@ -206,6 +182,23 @@ class CareActivityServiceTest {
         assertEquals(actual, careActivityMapper.CAToCADTO(expected));
         verify(careActivityRepository, times(1)).findById(expected.getCareActivityId());
 
+    }
+
+    @Test
+    void shouldThrowCustomEntityNotFoundException() {
+        Assertions.assertThrows(CustomEntityNotFoundException.class, () -> {
+            CareActivity expected = careActivity;
+            CareActivityDTO expectedDTO = careActivityDTO;
+
+            when(careActivityRepository.findById(expected.getCareActivityId())).thenReturn(Optional.of(expected));
+
+            when(careActivityMapper.CAToCADTO(expected)).thenReturn(expectedDTO);
+
+            CareActivityDTO actual = careActivityService.getCareActivityById("??????");
+
+            assertEquals(actual, careActivityMapper.CAToCADTO(expected));
+            verify(careActivityRepository, times(1)).findById(expected.getCareActivityId());
+        });
     }
 
     @Test
@@ -326,5 +319,9 @@ class CareActivityServiceTest {
         assertEquals(actual.size(), 2);
         verify(careActivityRepository, times(1)).findAll();
 
+    }
+
+    @Test
+    void shouldGetDeclinedCareActivitiesForPatientByMpi() {
     }
 }
