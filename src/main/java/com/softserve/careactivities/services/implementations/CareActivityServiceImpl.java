@@ -42,7 +42,8 @@ public class CareActivityServiceImpl implements CareActivityService {
 
     @Override
     public List<CareActivityExtendedDTO> getAllActiveCareActivities() {
-        List<CareActivityExtendedDTO> activeCA = careActivityRepository.findAllActiveCareActivitiesByState().stream()
+        List<CareActivityExtendedDTO> activeCA = careActivityRepository
+                .findAllActiveCareActivitiesByState(CareActivity.StateEnum.ACTIVE).stream()
                 .map(careActivityMapper::CAtoExtendedDTO)
                 .collect(Collectors.toList());
 
