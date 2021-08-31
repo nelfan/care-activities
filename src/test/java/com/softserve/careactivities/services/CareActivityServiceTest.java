@@ -44,9 +44,6 @@ class CareActivityServiceTest {
     @InjectMocks
     CareActivityServiceImpl careActivityService;
 
-    @Mock
-    CareActivityServiceImpl careActivityServiceMock;
-
     static CareActivity careActivity;
 
     static CareActivityDTO careActivityDTO;
@@ -296,19 +293,21 @@ class CareActivityServiceTest {
         List<CareActivity> careActivities = careActivityList;
         List<CareActivityDTO> expected = careActivityDTOList;
 
-        expected.get(0).setState(CareActivity.StateEnum.DECLINED);
-        expected.get(1).setState(CareActivity.StateEnum.DECLINED);
-
-        when(careActivityRepository.findAll()).thenReturn(careActivities);
-
         for (int i = 0; i < careActivities.size(); i++) {
+            careActivities.get(i).setState(CareActivity.StateEnum.DECLINED);
+            expected.get(i).setState(CareActivity.StateEnum.DECLINED);
+
             when(careActivityMapper.CAToCADTO(careActivities.get(i))).thenReturn(expected.get(i));
         }
 
+        when(careActivityRepository.findAllCareActivitiesByState(CareActivity.StateEnum.DECLINED))
+                .thenReturn(careActivities);
+
         List<CareActivityDTO> actual = careActivityService.getAllDeclinedCareActivities();
 
-        assertEquals(actual.size(), 2);
-        verify(careActivityRepository, times(1)).findAll();
+        assertEquals(actual.size(), 4);
+        verify(careActivityRepository, times(1))
+                .findAllCareActivitiesByState(CareActivity.StateEnum.DECLINED);
 
     }
 
