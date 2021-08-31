@@ -12,5 +12,5 @@ import java.util.List;
 public interface CareActivityRepository extends SpannerRepository<CareActivity, String> {
 
     @Query("SELECT * FROM CARE_ACTIVITIES WHERE STATE = @state")
-    List<CareActivity> findAllActiveCareActivitiesByState(@Param("state") CareActivity.StateEnum state);
+    List<CareActivity> findAllCareActivitiesByState(@Param("state") CareActivity.StateEnum state);
 }
