@@ -50,8 +50,7 @@ public class CareActivityServiceImpl implements CareActivityService {
 
         activeCA.forEach(p -> p.setIsPatientPediatric(CheckAgeUtil
                 .checkIsPatientPediatric(patientsClient
-                        .getPatientByMPI(p.getMasterPatientIdentifier())
-                        .getDateOfBirth())));
+                        .getPatientByMPI(p.getMasterPatientIdentifier()))));
 
         return activeCA;
     }
