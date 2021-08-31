@@ -265,14 +265,7 @@ class CareActivityServiceTest {
 
     @Test
     void shouldDeleteCareActivity() {
-
-        CareActivity expected = careActivity;
-        CareActivityDTO expectedDTO = careActivityDTO;
-
-        when(careActivityRepository.findById(expected.getCareActivityId())).thenReturn(Optional.of(expected));
-        when(careActivityMapper.CAToCADTO(expected)).thenReturn(expectedDTO);
-
-        CareActivityDTO actual = careActivityService.getCareActivityById(expected.getCareActivityId());
+        CareActivityDTO actual = careActivityDTO;
 
         Boolean isDeleted = careActivityService.delete(actual.getCareActivityId());
 
