@@ -313,5 +313,27 @@ class CareActivityServiceTest {
 
     @Test
     void shouldGetDeclinedCareActivitiesForPatientByMpi() {
+        List<CareActivity> careActivities = careActivityList;
+        List<CareActivityDTO> expected = careActivityDTOList;
+
+        String MPI = "12345";
+
+        for (int i = 0; i < careActivities.size(); i++) {
+            careActivities.get(i).setState(CareActivity.StateEnum.DECLINED);
+            careActivities.get(i).setMasterPatientIdentifier(MPI);
+            expected.get(i).setState(CareActivity.StateEnum.DECLINED);
+            expected.get(i).setMasterPatientIdentifier(MPI);
+
+            when(careActivityMapper.CAToCADTO(careActivities.get(i))).thenReturn(expected.get(i));
+        }
+
+        when(careActivityRepository.findAllCareActivitiesByMPIAndByState(MPI, CareActivity.StateEnum.DECLINED))
+                .thenReturn(careActivities);
+
+        List<CareActivityDTO> actual = careActivityService.getDeclinedCareActivitiesForPatientByMpi(MPI);
+
+        assertEquals(actual.size(), 4);
+        verify(careActivityRepository, times(1))
+                .findAllCareActivitiesByMPIAndByState(MPI, CareActivity.StateEnum.DECLINED);
     }
 }
