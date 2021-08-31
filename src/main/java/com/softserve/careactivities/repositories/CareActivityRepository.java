@@ -13,4 +13,8 @@ public interface CareActivityRepository extends SpannerRepository<CareActivity, 
 
     @Query("SELECT * FROM CARE_ACTIVITIES WHERE STATE = @state")
     List<CareActivity> findAllCareActivitiesByState(@Param("state") CareActivity.StateEnum state);
+
+    @Query("SELECT * FROM CARE_ACTIVITIES WHERE MASTER_PATIENT_IDENTIFIER = @MPI and STATE = @state")
+    List<CareActivity> findAllCareActivitiesByMPIAndByState(@Param("MPI") String MPI,
+                                                            @Param("state") CareActivity.StateEnum state);
 }

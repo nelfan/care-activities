@@ -166,7 +166,7 @@ class CareActivityServiceTest {
         }
         verify(careActivityRepository, times(1)).findAll();
     }
-    
+
     @Test
     void shouldGetCareActivityById() throws CustomEntityNotFoundException {
         CareActivity expected = careActivity;
@@ -274,11 +274,9 @@ class CareActivityServiceTest {
 
         CareActivityDTO actual = careActivityService.getCareActivityById(expected.getCareActivityId());
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         Boolean isDeleted = careActivityService.delete(actual.getCareActivityId());
 
-        assertEquals(isDeleted, true);
+        assertEquals(true, isDeleted);
         verify(careActivityRepository, times(1)).deleteById(actual.getCareActivityId());
     }
 

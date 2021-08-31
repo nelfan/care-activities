@@ -43,7 +43,8 @@ public class CareActivityServiceImpl implements CareActivityService {
     @Override
     public List<CareActivityExtendedDTO> getAllActiveCareActivities() {
         List<CareActivityExtendedDTO> activeCA = careActivityRepository
-                .findAllCareActivitiesByState(CareActivity.StateEnum.ACTIVE).stream()
+                .findAllCareActivitiesByState(CareActivity.StateEnum.ACTIVE)
+                .stream()
                 .map(careActivityMapper::CAtoExtendedDTO)
                 .collect(Collectors.toList());
 
@@ -58,16 +59,18 @@ public class CareActivityServiceImpl implements CareActivityService {
     @Override
     public List<CareActivityDTO> getAllDeclinedCareActivities() {
         return careActivityRepository
-                .findAllCareActivitiesByState(CareActivity.StateEnum.DECLINED).stream()
+                .findAllCareActivitiesByState(CareActivity.StateEnum.DECLINED)
+                .stream()
                 .map(careActivityMapper::CAToCADTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<CareActivityDTO> getDeclinedCareActivitiesForPatientByMpi(String mpi) {
-        return getAllDeclinedCareActivities().stream()
-                .filter(i -> i.getMasterPatientIdentifier()
-                        .equals(mpi))
+        return careActivityRepository
+                .findAllCareActivitiesByMPIAndByState(mpi, CareActivity.StateEnum.DECLINED)
+                .stream()
+                .map(careActivityMapper::CAToCADTO)
                 .collect(Collectors.toList());
     }
 
