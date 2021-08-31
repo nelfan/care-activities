@@ -42,9 +42,8 @@ public class CareActivityServiceImpl implements CareActivityService {
 
     @Override
     public List<CareActivityExtendedDTO> getAllActiveCareActivities() {
-        List<CareActivityExtendedDTO> activeCA = getAll().stream()
-                .filter(i -> i.getState().equals(CareActivity.StateEnum.ACTIVE))
-                .map(careActivityMapper::CADTOToExtendedDTO)
+        List<CareActivityExtendedDTO> activeCA = careActivityRepository.findAllActiveCareActivitiesByState().stream()
+                .map(careActivityMapper::CAtoExtendedDTO)
                 .collect(Collectors.toList());
 
         activeCA.forEach(p -> p.setIsPatientPediatric(CheckAgeUtil
@@ -107,7 +106,6 @@ public class CareActivityServiceImpl implements CareActivityService {
     @Override
     public boolean delete(String id) {
         try {
-            getCareActivityById(id);
             careActivityRepository.deleteById(id);
             return true;
         } catch (Exception e) {
