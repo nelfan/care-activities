@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @Log
@@ -30,7 +31,11 @@ public class CareActivityServiceImpl implements CareActivityService {
 
     @Override
     public List<CareActivityDTO> getAll() {
-        List<CareActivity> careActivities = (List<CareActivity>) careActivityRepository.findAll();
+        Iterable<CareActivity> careActivitiesIter = careActivityRepository.findAll();
+
+        List<CareActivity> careActivities = StreamSupport.stream(careActivitiesIter.spliterator(), false)
+                .collect(Collectors.toList());
+
         return careActivities.stream().map(careActivityMapper::CAToCADTO).collect(Collectors.toList());
     }
 
@@ -94,7 +99,7 @@ public class CareActivityServiceImpl implements CareActivityService {
     public CareActivity update(CareActivity careActivity) {
         try {
             careActivity.setUpdateDateTimeGMT(LocalDateTime.now());
-            
+
             CareActivity existingCareActivity = careActivityMapper
                     .CADTOtoCA(getCareActivityById(careActivity.getCareActivityId()));
             patientsClient.getPatientByMPI(existingCareActivity.getMasterPatientIdentifier());
