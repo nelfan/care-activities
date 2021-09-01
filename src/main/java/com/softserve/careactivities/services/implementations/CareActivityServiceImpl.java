@@ -8,7 +8,8 @@ import com.softserve.careactivities.feign_clients.PatientClientFacade;
 import com.softserve.careactivities.feign_clients.PatientsClient;
 import com.softserve.careactivities.repositories.CareActivityRepository;
 import com.softserve.careactivities.services.CareActivityService;
-import com.softserve.careactivities.utils.exceptions.*;
+import com.softserve.careactivities.utils.exceptions.CustomEntityNotFoundException;
+import com.softserve.careactivities.utils.exceptions.PatientIsNotActiveException;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
@@ -82,48 +83,33 @@ public class CareActivityServiceImpl implements CareActivityService {
 
     @Override
     public CareActivity create(CareActivity careActivity) {
-        try {
-            if (patientsClient.getPatientByMPI((careActivity.getMasterPatientIdentifier()))
-                    .isActive()) {
-                careActivity.setCreateDateTimeGMT(LocalDateTime.now());
-                return careActivityRepository.save(careActivity);
-            } else {
-                throw new PatientIsNotActiveException();
-            }
-        } catch (Exception e) {
-            log.severe(e.getMessage());
-            throw new CustomEntityFailedToCreate(CareActivity.class);
+        if (patientsClient.getPatientByMPI((careActivity.getMasterPatientIdentifier()))
+                .isActive()) {
+            careActivity.setCreateDateTimeGMT(LocalDateTime.now());
+            return careActivityRepository.save(careActivity);
+        } else {
+            throw new PatientIsNotActiveException();
         }
     }
 
     @Override
     public CareActivity update(CareActivity careActivity) {
-        try {
-            careActivity.setUpdateDateTimeGMT(LocalDateTime.now());
+        careActivity.setUpdateDateTimeGMT(LocalDateTime.now());
 
-            CareActivity existingCareActivity = careActivityMapper
-                    .CADTOtoCA(getCareActivityById(careActivity.getCareActivityId()));
-            patientsClient.getPatientByMPI(existingCareActivity.getMasterPatientIdentifier());
+        CareActivity existingCareActivity = careActivityMapper
+                .CADTOtoCA(getCareActivityById(careActivity.getCareActivityId()));
+        patientsClient.getPatientByMPI(existingCareActivity.getMasterPatientIdentifier());
 
-            existingCareActivity.setCareActivityComment(careActivity.getCareActivityComment());
-            existingCareActivity.setState(careActivity.getState());
-            existingCareActivity.setUpdateDateTimeGMT(careActivity.getUpdateDateTimeGMT());
+        existingCareActivity.setCareActivityComment(careActivity.getCareActivityComment());
+        existingCareActivity.setState(careActivity.getState());
+        existingCareActivity.setUpdateDateTimeGMT(careActivity.getUpdateDateTimeGMT());
 
-            return careActivityRepository.save(existingCareActivity);
-        } catch (Exception e) {
-            log.severe(e.getMessage());
-            throw new CustomFailedToUpdateEntityException();
-        }
+        return careActivityRepository.save(existingCareActivity);
     }
 
     @Override
     public boolean delete(String id) {
-        try {
-            careActivityRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            log.severe(e.getMessage());
-            throw new CustomFailedToDeleteEntityException(CareActivity.class);
-        }
+        careActivityRepository.deleteById(id);
+        return true;
     }
 }
