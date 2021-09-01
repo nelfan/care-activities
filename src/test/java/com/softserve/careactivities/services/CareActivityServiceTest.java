@@ -5,12 +5,11 @@ import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
 import com.softserve.careactivities.domain.entities.Patient;
 import com.softserve.careactivities.domain.mappers.CareActivityMapper;
+import com.softserve.careactivities.feign_clients.PatientClientFacade;
 import com.softserve.careactivities.feign_clients.PatientsClient;
 import com.softserve.careactivities.repositories.CareActivityRepository;
 import com.softserve.careactivities.services.implementations.CareActivityServiceImpl;
-import com.softserve.careactivities.utils.exceptions.CustomEntityFailedToCreate;
 import com.softserve.careactivities.utils.exceptions.CustomEntityNotFoundException;
-import com.softserve.careactivities.utils.exceptions.CustomFailedToDeleteEntityException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +40,9 @@ class CareActivityServiceTest {
     @Mock
     CareActivityMapper careActivityMapper;
 
+    @Mock
+    PatientClientFacade patientClientFacade;
+
     @InjectMocks
     CareActivityServiceImpl careActivityService;
 
@@ -65,7 +67,11 @@ class CareActivityServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        careActivityService = new CareActivityServiceImpl(careActivityRepository, patientsClient, careActivityMapper);
+        careActivityService = new CareActivityServiceImpl(
+                careActivityRepository,
+                patientsClient,
+                careActivityMapper,
+                patientClientFacade);
 
         localDateTime = LocalDateTime.of(2000, 10, 10, 10, 10);
         zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
@@ -216,20 +222,6 @@ class CareActivityServiceTest {
     }
 
     @Test
-    void shouldThrowCustomEntityFailedToCreateException() {
-        Assertions.assertThrows(CustomEntityFailedToCreate.class, () -> {
-            CareActivity ca = careActivity;
-
-            Patient inactivePatient = patient;
-            inactivePatient.setActive(false);
-
-            when(patientsClient.getPatientByMPI(ca.getMasterPatientIdentifier())).thenReturn(inactivePatient);
-
-            careActivityService.create(ca);
-        });
-    }
-
-    @Test
     void shouldUpdateCareActivity() {
         CareActivity expected = careActivity;
         CareActivityDTO expectedDTO = careActivityDTO;
@@ -271,24 +263,6 @@ class CareActivityServiceTest {
     }
 
     @Test
-    void shouldThrowCustomFailedToDeleteExceptionWhenCareActivityDoesntExist() {
-        Assertions.assertThrows(CustomFailedToDeleteEntityException.class, () -> {
-            CareActivity expected = careActivity;
-            expected.setCareActivityId("unknown_id");
-            CareActivityDTO expectedDTO = careActivityDTO;
-
-            when(careActivityRepository.findById(expected.getCareActivityId())).thenReturn(Optional.of(expected));
-            when(careActivityMapper.CAToCADTO(expected)).thenReturn(expectedDTO);
-
-            CareActivityDTO actual = careActivityService.getCareActivityById(expected.getCareActivityId());
-
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            careActivityService.delete(actual.getCareActivityId());
-        });
-    }
-
-    @Test
     void shouldGetAllDeclinedCareActivities() {
         List<CareActivity> careActivities = careActivityList;
         List<CareActivityDTO> expected = careActivityDTOList;
@@ -309,6 +283,28 @@ class CareActivityServiceTest {
         verify(careActivityRepository, times(1))
                 .findAllCareActivitiesByState(CareActivity.StateEnum.DECLINED);
 
+    }
+
+    @Test
+    void shouldGetAllActiveCareActivities() {
+        List<CareActivity> careActivities = careActivityList;
+        List<CareActivityExtendedDTO> expected = extendedDTOList;
+
+        for (int i = 0; i < careActivities.size(); i++) {
+            careActivities.get(i).setState(CareActivity.StateEnum.ACTIVE);
+            expected.get(i).setState(CareActivity.StateEnum.ACTIVE);
+
+            when(careActivityMapper.CAtoExtendedDTO(careActivities.get(i))).thenReturn(expected.get(i));
+        }
+
+        when(careActivityRepository.findAllCareActivitiesByState(CareActivity.StateEnum.ACTIVE))
+                .thenReturn(careActivities);
+
+        List<CareActivityExtendedDTO> actual = careActivityService.getAllActiveCareActivities();
+
+        assertEquals(actual.size(), 4);
+        verify(careActivityRepository, times(1))
+                .findAllCareActivitiesByState(CareActivity.StateEnum.ACTIVE);
     }
 
     @Test
