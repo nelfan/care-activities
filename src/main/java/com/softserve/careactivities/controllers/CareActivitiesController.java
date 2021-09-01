@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -66,7 +65,6 @@ public class CareActivitiesController {
     @PutMapping()
     public ResponseEntity<CareActivityDTO> updateCareActivity(@RequestBody CareActivitySimpleDTO careActivitySimpleDTO) {
         CareActivity careActivity = careActivityMapper.careActivitySimpleDTOToCA(careActivitySimpleDTO);
-        careActivity.setUpdateDateTimeGMT(LocalDateTime.now());
 
         careActivityService.update(careActivity);
 
