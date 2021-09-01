@@ -94,15 +94,12 @@ public class CareActivityServiceImpl implements CareActivityService {
 
     @Override
     public CareActivity update(CareActivity careActivity) {
-        careActivity.setUpdateDateTimeGMT(LocalDateTime.now());
-
         CareActivity existingCareActivity = careActivityMapper
                 .CADTOtoCA(getCareActivityById(careActivity.getCareActivityId()));
-        patientsClient.getPatientByMPI(existingCareActivity.getMasterPatientIdentifier());
 
         existingCareActivity.setCareActivityComment(careActivity.getCareActivityComment());
         existingCareActivity.setState(careActivity.getState());
-        existingCareActivity.setUpdateDateTimeGMT(careActivity.getUpdateDateTimeGMT());
+        existingCareActivity.setUpdateDateTimeGMT(LocalDateTime.now());
 
         return careActivityRepository.save(existingCareActivity);
     }
