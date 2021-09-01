@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,6 +79,7 @@ public class CareActivityServiceImpl implements CareActivityService {
         try {
             if (patientsClient.getPatientByMPI((careActivity.getMasterPatientIdentifier()))
                     .isActive()) {
+                careActivity.setCreateDateTimeGMT(LocalDateTime.now());
                 return careActivityRepository.save(careActivity);
             } else {
                 throw new PatientIsNotActiveException();

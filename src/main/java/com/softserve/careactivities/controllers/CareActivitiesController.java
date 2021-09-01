@@ -56,7 +56,6 @@ public class CareActivitiesController {
     @PostMapping()
     public ResponseEntity<CareActivityDTO> createCareActivity(@RequestBody CareActivitySimpleDTO careActivitySimpleDTO) {
         CareActivity careActivity = careActivityMapper.careActivitySimpleDTOToCA(careActivitySimpleDTO);
-        careActivity.setCreateDateTimeGMT(LocalDateTime.now());
 
         careActivityService.create(careActivity);
 
