@@ -4,10 +4,10 @@ import com.softserve.careactivities.domain.dto.CareActivityDTO;
 import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
 import com.softserve.careactivities.domain.mappers.CareActivityMapper;
+import com.softserve.careactivities.feign_clients.PatientClientFacade;
 import com.softserve.careactivities.feign_clients.PatientsClient;
 import com.softserve.careactivities.repositories.CareActivityRepository;
 import com.softserve.careactivities.services.CareActivityService;
-import com.softserve.careactivities.utils.CheckAgeUtil;
 import com.softserve.careactivities.utils.exceptions.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
@@ -28,6 +28,8 @@ public class CareActivityServiceImpl implements CareActivityService {
     private final PatientsClient patientsClient;
 
     private final CareActivityMapper careActivityMapper;
+
+    private final PatientClientFacade patientClientFacade;
 
     @Override
     public List<CareActivityDTO> getAll() {
@@ -54,9 +56,8 @@ public class CareActivityServiceImpl implements CareActivityService {
                 .map(careActivityMapper::CAtoExtendedDTO)
                 .collect(Collectors.toList());
 
-        activeCA.forEach(p -> p.setIsPatientPediatric(CheckAgeUtil
-                .checkIsPatientPediatric(patientsClient
-                        .getPatientByMPI(p.getMasterPatientIdentifier()))));
+        activeCA.forEach(p -> p.setIsPatientPediatric(patientClientFacade
+                .checkIsPatientPediatric(p)));
 
         return activeCA;
     }
