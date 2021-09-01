@@ -1,6 +1,7 @@
 package com.softserve.careactivities.utils.config;
 
-import com.softserve.careactivities.utils.exceptions.*;
+import com.softserve.careactivities.utils.exceptions.CustomEntityNotFoundException;
+import com.softserve.careactivities.utils.exceptions.PatientIsNotActiveException;
 import lombok.extern.java.Log;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,13 +15,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Log
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = {CustomFailedToDeleteEntityException.class})
-    protected ResponseEntity<Object> handleFailedToDeleteEntity(RuntimeException ex, WebRequest request) {
-        log.warning(ex.getMessage());
-        return handleExceptionInternal(ex, ex.getMessage(),
-                new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-    }
-
     @ExceptionHandler(value = {CustomEntityNotFoundException.class})
     protected ResponseEntity<Object> handleEntityNotFound(RuntimeException ex, WebRequest request) {
         log.warning(ex.getMessage());
@@ -28,24 +22,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
-    @ExceptionHandler(value = {CustomEntityFailedToCreate.class})
-    protected ResponseEntity<Object> handleFailedToCreateEntity(RuntimeException ex, WebRequest request) {
-        log.warning(ex.getMessage());
-        return handleExceptionInternal(ex, ex.getMessage(),
-                new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-    }
-
-    @ExceptionHandler(value = {CustomFailedToUpdateEntityException.class})
-    protected ResponseEntity<Object> handleFailedToUpdateEntity(RuntimeException ex, WebRequest request) {
-        log.warning(ex.getMessage());
-        return handleExceptionInternal(ex, ex.getMessage(),
-                new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-    }
-
     @ExceptionHandler(value = {PatientIsNotActiveException.class})
     protected ResponseEntity<Object> handlePatientIsNotActive(RuntimeException ex, WebRequest request) {
         log.warning(ex.getMessage());
         return handleExceptionInternal(ex, ex.getMessage(),
-                new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
+
 }
