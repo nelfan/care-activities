@@ -3,7 +3,6 @@ package com.softserve.careactivities.controllers;
 import com.softserve.careactivities.domain.entities.Patient;
 import com.softserve.careactivities.feign_clients.PatientsClient;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

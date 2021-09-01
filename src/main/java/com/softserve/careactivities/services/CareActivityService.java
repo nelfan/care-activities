@@ -1,7 +1,7 @@
 package com.softserve.careactivities.services;
 
-import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.dto.CareActivityDTO;
+import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
 
 import java.util.List;
