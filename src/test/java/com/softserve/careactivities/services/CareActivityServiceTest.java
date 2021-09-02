@@ -10,6 +10,7 @@ import com.softserve.careactivities.feign_clients.PatientsClient;
 import com.softserve.careactivities.repositories.CareActivityRepository;
 import com.softserve.careactivities.services.implementations.CareActivityServiceImpl;
 import com.softserve.careactivities.utils.exceptions.CustomEntityNotFoundException;
+import com.softserve.careactivities.utils.exceptions.PatientIsNotActiveException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class CareActivityServiceTest {
@@ -204,18 +204,31 @@ class CareActivityServiceTest {
     @Test
     void shouldCreateCareActivity() {
         CareActivity ca = careActivity;
-
         CareActivity expected = careActivity;
-
         Patient activePatient = patient;
 
-        when(careActivityRepository.save(ca)).thenReturn(expected);
         when(patientsClient.getPatientByMPI(ca.getMasterPatientIdentifier())).thenReturn(activePatient);
+        when(careActivityRepository.save(ca)).thenReturn(expected);
 
         CareActivity actual = careActivityService.create(ca);
 
         assertEquals(expected, actual);
         verify(careActivityRepository, times(1)).save(ca);
+    }
+
+    @Test
+    void shouldThrowPatientIsNotActiveException() {
+        CareActivity ca = careActivity;
+        CareActivity expected = careActivity;
+        Patient inActivePatient = patient;
+        inActivePatient.setActive(false);
+
+        when(patientsClient.getPatientByMPI(ca.getMasterPatientIdentifier())).thenReturn(inActivePatient);
+        when(careActivityRepository.save(ca)).thenReturn(expected);
+
+        Assertions.assertThrows(PatientIsNotActiveException.class, () -> {
+            careActivityService.create(ca);
+        });
     }
 
     @Test
