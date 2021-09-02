@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class CareActivityServiceTest {
@@ -171,13 +172,11 @@ class CareActivityServiceTest {
     }
 
     @Test
-    void shouldGetCareActivityById() throws CustomEntityNotFoundException {
+    void shouldGetCareActivityById() {
         CareActivity expected = careActivity;
-
         CareActivityDTO expectedDTO = careActivityDTO;
 
         when(careActivityRepository.findById(expected.getCareActivityId())).thenReturn(Optional.of(expected));
-
         when(careActivityMapper.CAToCADTO(expected)).thenReturn(expectedDTO);
 
         CareActivityDTO actual = careActivityService.getCareActivityById(expected.getCareActivityId());
@@ -189,18 +188,16 @@ class CareActivityServiceTest {
 
     @Test
     void shouldThrowCustomEntityNotFoundException() {
+        CareActivity expected = careActivity;
+        CareActivityDTO expectedDTO = careActivityDTO;
+
+        expected.setCareActivityId("expected_id");
+
+        when(careActivityRepository.findById(expected.getCareActivityId())).thenReturn(Optional.of(expected));
+        when(careActivityMapper.CAToCADTO(expected)).thenReturn(expectedDTO);
+
         Assertions.assertThrows(CustomEntityNotFoundException.class, () -> {
-            CareActivity expected = careActivity;
-            CareActivityDTO expectedDTO = careActivityDTO;
-
-            when(careActivityRepository.findById(expected.getCareActivityId())).thenReturn(Optional.of(expected));
-
-            when(careActivityMapper.CAToCADTO(expected)).thenReturn(expectedDTO);
-
-            CareActivityDTO actual = careActivityService.getCareActivityById("??????");
-
-            assertEquals(actual, careActivityMapper.CAToCADTO(expected));
-            verify(careActivityRepository, times(1)).findById(expected.getCareActivityId());
+            careActivityService.getCareActivityById("unknown_id");
         });
     }
 
