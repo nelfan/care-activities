@@ -260,9 +260,8 @@ class CareActivityServiceTest {
     void shouldDeleteCareActivity() {
         CareActivityDTO actual = careActivityDTO;
 
-        Boolean isDeleted = careActivityService.delete(actual.getCareActivityId());
+        careActivityService.delete(actual.getCareActivityId());
 
-        assertEquals(true, isDeleted);
         verify(careActivityRepository, times(1)).deleteById(actual.getCareActivityId());
     }
 
