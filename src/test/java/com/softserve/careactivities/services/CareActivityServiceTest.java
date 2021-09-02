@@ -243,23 +243,17 @@ class CareActivityServiceTest {
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        Patient pa = patient;
+        CareActivity existingCA = careActivity;
+        CareActivity updatedCA = careActivity;
 
-        CareActivity caSaved = careActivity;
-        CareActivity caUpdated = careActivity;
+        when(careActivityMapper.CADTOtoCA(actual)).thenReturn(existingCA);
+        when(careActivityRepository.save(existingCA)).thenReturn(updatedCA);
 
-        when(careActivityMapper.CADTOtoCA(actual)).thenReturn(caSaved);
+        CareActivity actualCA = careActivityService.update(existingCA);
 
-        when(patientsClient.getPatientByMPI(caSaved.getMasterPatientIdentifier())).thenReturn(pa);
+        assertEquals(existingCA, actualCA);
 
-        when(careActivityRepository.save(caSaved)).thenReturn(caUpdated);
-
-        CareActivity actualCA = careActivityService.update(caSaved);
-
-        assertEquals(caSaved, actualCA);
-
-        verify(careActivityRepository, times(1)).save(caSaved);
-        verify(careActivityRepository, times(1)).save(caUpdated);
+        verify(careActivityRepository, times(1)).save(existingCA);
     }
 
     @Test
