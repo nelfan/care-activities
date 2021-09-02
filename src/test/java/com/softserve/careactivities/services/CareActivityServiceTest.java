@@ -347,7 +347,7 @@ class CareActivityServiceTest {
 
         List<CareActivityDTO> actual = careActivityService.getDeclinedCareActivitiesForPatientByMpi(MPI);
 
-        assertEquals(actual.size(), 4);
+        assertEquals(expected.size(), actual.size());
         verify(careActivityRepository, times(1))
                 .findAllCareActivitiesByMPIAndByState(MPI, CareActivity.StateEnum.DECLINED);
     }
