@@ -283,6 +283,11 @@ class CareActivityServiceTest {
         List<CareActivityDTO> actual = careActivityService.getAllDeclinedCareActivities();
 
         assertEquals(actual.size(), 4);
+
+        for (int i = 0; i < actual.size(); i++) {
+            assertEquals(expected.get(i), actual.get(i));
+        }
+
         verify(careActivityRepository, times(1))
                 .findAllCareActivitiesByState(CareActivity.StateEnum.DECLINED);
 
@@ -298,6 +303,7 @@ class CareActivityServiceTest {
             expected.get(i).setState(CareActivity.StateEnum.ACTIVE);
 
             when(careActivityMapper.CAtoExtendedDTO(careActivities.get(i))).thenReturn(expected.get(i));
+            when(patientClientFacade.checkIsPatientPediatric(expected.get(i))).thenReturn(true);
         }
 
         when(careActivityRepository.findAllCareActivitiesByState(CareActivity.StateEnum.ACTIVE))
@@ -306,8 +312,18 @@ class CareActivityServiceTest {
         List<CareActivityExtendedDTO> actual = careActivityService.getAllActiveCareActivities();
 
         assertEquals(actual.size(), 4);
+
+        for (int i = 0; i < actual.size(); i++) {
+            assertEquals(expected.get(i), actual.get(i));
+        }
+
         verify(careActivityRepository, times(1))
                 .findAllCareActivitiesByState(CareActivity.StateEnum.ACTIVE);
+
+        for (int i = 0; i < actual.size(); i++) {
+            verify(patientClientFacade, times(1))
+                    .checkIsPatientPediatric(extendedDTOList.get(i));
+        }
     }
 
     @Test
