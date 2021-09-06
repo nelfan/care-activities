@@ -75,8 +75,11 @@ public class CareActivitiesController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCareActivityById(@PathVariable String id) {
-        careActivityService.delete(id);
+        if (careActivityService.deleteById(id) == 1) {
+            return new ResponseEntity<>("Care Activity was removed successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Unable to delete. Care Activity not found", HttpStatus.NOT_FOUND);
+        }
 
-        return new ResponseEntity<>("Care Activity was removed successfully", HttpStatus.OK);
     }
 }
