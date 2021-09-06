@@ -11,10 +11,7 @@ import com.softserve.careactivities.repositories.CareActivityRepository;
 import com.softserve.careactivities.services.implementations.CareActivityServiceImpl;
 import com.softserve.careactivities.utils.exceptions.CustomEntityNotFoundException;
 import com.softserve.careactivities.utils.exceptions.PatientIsNotActiveException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -257,12 +254,26 @@ class CareActivityServiceTest {
     }
 
     @Test
+    @DisplayName("using delete method")
     void shouldDeleteCareActivity() {
         CareActivityDTO actual = careActivityDTO;
 
         careActivityService.delete(actual.getCareActivityId());
 
         verify(careActivityRepository, times(1)).deleteById(actual.getCareActivityId());
+    }
+
+    @Test
+    @DisplayName("using customDeleteById method")
+    void shouldDeleteCareActivityUsingCustomDeleteQuery() {
+        CareActivityDTO actual = careActivityDTO;
+
+        when(careActivityRepository.customDeleteById(actual.getCareActivityId())).thenReturn(1);
+
+        int actualRowsAffected = careActivityService.deleteById(actual.getCareActivityId());
+
+        assertEquals(1, actualRowsAffected);
+        verify(careActivityRepository, times(1)).customDeleteById(actual.getCareActivityId());
     }
 
     @Test
