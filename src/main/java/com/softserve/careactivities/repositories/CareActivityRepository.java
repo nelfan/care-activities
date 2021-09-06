@@ -17,4 +17,7 @@ public interface CareActivityRepository extends SpannerRepository<CareActivity, 
     @Query("SELECT * FROM CARE_ACTIVITIES WHERE MASTER_PATIENT_IDENTIFIER = @MPI and STATE = @state")
     List<CareActivity> findAllCareActivitiesByMPIAndByState(@Param("MPI") String MPI,
                                                             @Param("state") CareActivity.StateEnum state);
+
+    @Query(value = "DELETE FROM CARE_ACTIVITIES WHERE CARE_ACTIVITY_ID = @id", dmlStatement = true)
+    int customDeleteById(@Param("id") String careActivityId);
 }

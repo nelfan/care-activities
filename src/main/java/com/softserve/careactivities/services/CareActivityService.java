@@ -23,4 +23,6 @@ public interface CareActivityService {
     CareActivity update(CareActivity careActivity);
 
     boolean delete(String id);
+
+    int deleteById(String id);
 }

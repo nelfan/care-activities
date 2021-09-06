@@ -109,4 +109,9 @@ public class CareActivityServiceImpl implements CareActivityService {
         careActivityRepository.deleteById(id);
         return true;
     }
+
+    @Override
+    public int deleteById(String id) {
+        return careActivityRepository.customDeleteById(id);
+    }
 }
