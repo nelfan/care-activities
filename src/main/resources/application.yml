@@ -1,0 +1,9 @@
+server:
+  port: 8080
+spring:
+  cloud:
+    gcp:
+      spanner:
+        database: ${DB}
+        instance-id: ${INSTANCE_ID}
+        project-id: ${PROJECT_ID}
