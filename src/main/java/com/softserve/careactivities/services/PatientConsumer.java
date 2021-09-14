@@ -2,17 +2,19 @@ package com.softserve.careactivities.services;
 
 import com.softserve.careactivities.repositories.CareActivityRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
-@Service
+import java.util.function.Consumer;
+
+@Component
 @AllArgsConstructor
 public class PatientConsumer {
 
     private CareActivityRepository careActivityRepository;
 
-    @KafkaListener(topics = "Patient-deactivation-event", groupId = "mygroup")
-    public void consume(String deactivatedPatientMPI) {
-        careActivityRepository.declineAllCareActivitiesByMPI(deactivatedPatientMPI);
+    @Bean()
+    public Consumer<String> consume() {
+        return s -> careActivityRepository.declineAllCareActivitiesByMPI(s);
     }
 }
