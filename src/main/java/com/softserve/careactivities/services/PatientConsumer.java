@@ -2,19 +2,18 @@ package com.softserve.careactivities.services;
 
 import com.softserve.careactivities.repositories.CareActivityRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Consumer;
 
-@Component
+@Component("consume")
 @AllArgsConstructor
-public class PatientConsumer {
+public class PatientConsumer implements Consumer<String> {
 
     private CareActivityRepository careActivityRepository;
 
-    @Bean()
-    public Consumer<String> consume() {
-        return s -> careActivityRepository.declineAllCareActivitiesByMPI(s);
+    @Override
+    public void accept(String s) {
+        careActivityRepository.declineAllCareActivitiesByMPI(s);
     }
 }

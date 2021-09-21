@@ -1,11 +1,6 @@
 spring:
   cloud:
-    function:
-      definition: "consume"
     stream:
       kafka:
         binder:
           brokers: localhost:9092
-      bindings:
-        consume-in-0:
-          destination: Patient-deactivation-event
