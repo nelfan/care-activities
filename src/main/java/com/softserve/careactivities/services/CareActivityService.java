@@ -1,22 +1,28 @@
 package com.softserve.careactivities.services;
 
+import com.softserve.careactivities.domain.dto.CareActivityDTO;
+import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
 
 import java.util.List;
 
 public interface CareActivityService {
 
-    List<CareActivity> getAll();
+    List<CareActivityDTO> getAll();
 
-    List<CareActivity> getAllDeclinedCareActivities();
+    List<CareActivityExtendedDTO> getAllActiveCareActivities();
 
-    CareActivity getCareActivityById(String id);
+    List<CareActivityDTO> getAllDeclinedCareActivities();
 
-    List<CareActivity> getDeclinedCareActivitiesForPatientByMpi(String mpi);
+    CareActivityDTO getCareActivityById(String id);
+
+    List<CareActivityDTO> getDeclinedCareActivitiesForPatientByMpi(String mpi);
 
     CareActivity create(CareActivity careActivity);
 
     CareActivity update(CareActivity careActivity);
 
     boolean delete(String id);
+
+    int deleteById(String id);
 }

@@ -1,17 +1,23 @@
 package com.softserve.careactivities.services.implementations;
 
+import com.softserve.careactivities.domain.dto.CareActivityDTO;
+import com.softserve.careactivities.domain.dto.CareActivityExtendedDTO;
 import com.softserve.careactivities.domain.entities.CareActivity;
 import com.softserve.careactivities.domain.mappers.CareActivityMapper;
+import com.softserve.careactivities.feign_clients.PatientClientFacade;
 import com.softserve.careactivities.feign_clients.PatientsClient;
 import com.softserve.careactivities.repositories.CareActivityRepository;
 import com.softserve.careactivities.services.CareActivityService;
-import com.softserve.careactivities.utils.exceptions.*;
+import com.softserve.careactivities.utils.exceptions.CustomEntityNotFoundException;
+import com.softserve.careactivities.utils.exceptions.PatientIsNotActiveException;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @Log
@@ -22,73 +28,90 @@ public class CareActivityServiceImpl implements CareActivityService {
 
     private final PatientsClient patientsClient;
 
+    private final CareActivityMapper careActivityMapper;
+
+    private final PatientClientFacade patientClientFacade;
+
     @Override
-    public List<CareActivity> getAll() {
-        return (List<CareActivity>) careActivityRepository.findAll();
+    public List<CareActivityDTO> getAll() {
+        Iterable<CareActivity> careActivitiesIter = careActivityRepository.findAll();
+
+        List<CareActivity> careActivities = StreamSupport.stream(careActivitiesIter.spliterator(), false)
+                .collect(Collectors.toList());
+
+        return careActivities.stream().map(careActivityMapper::CAToCADTO).collect(Collectors.toList());
     }
 
     @Override
-    public CareActivity getCareActivityById(String id) {
+    public CareActivityDTO getCareActivityById(String id) {
         return careActivityRepository.findById(id)
+                .map(careActivityMapper::CAToCADTO)
                 .orElseThrow(() -> new CustomEntityNotFoundException(CareActivity.class));
     }
 
     @Override
-    public List<CareActivity> getAllDeclinedCareActivities() {
-        return getAll().stream()
-                .filter(i -> i.getState().equals(CareActivity.StateEnum.DECLINED))
+    public List<CareActivityExtendedDTO> getAllActiveCareActivities() {
+        List<CareActivityExtendedDTO> activeCA = careActivityRepository
+                .findAllCareActivitiesByState(CareActivity.StateEnum.ACTIVE)
+                .stream()
+                .map(careActivityMapper::CAtoExtendedDTO)
+                .collect(Collectors.toList());
+
+        activeCA.forEach(p -> p.setIsPatientPediatric(patientClientFacade
+                .checkIsPatientPediatric(p)));
+
+        return activeCA;
+    }
+
+    @Override
+    public List<CareActivityDTO> getAllDeclinedCareActivities() {
+        return careActivityRepository
+                .findAllCareActivitiesByState(CareActivity.StateEnum.DECLINED)
+                .stream()
+                .map(careActivityMapper::CAToCADTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<CareActivity> getDeclinedCareActivitiesForPatientByMpi(String mpi) {
-        return getAllDeclinedCareActivities().stream()
-                .filter(i -> i.getMasterPatientIdentifier()
-                        .equals(mpi))
+    public List<CareActivityDTO> getDeclinedCareActivitiesForPatientByMpi(String mpi) {
+        return careActivityRepository
+                .findAllCareActivitiesByMPIAndByState(mpi, CareActivity.StateEnum.DECLINED)
+                .stream()
+                .map(careActivityMapper::CAToCADTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public CareActivity create(CareActivity careActivity) {
-        try {
-            if (patientsClient.getPatientByMPI((careActivity.getMasterPatientIdentifier()))
-                    .isActive()) {
-                return careActivityRepository.save(careActivity);
-            } else {
-                throw new PatientIsNotActiveException();
-            }
-        } catch (Exception e) {
-            log.severe(e.getMessage());
-            throw new CustomEntityFailedToCreate(CareActivity.class);
+        if (patientsClient.getPatientByMPI((careActivity.getMasterPatientIdentifier()))
+                .isActive()) {
+            careActivity.setCreateDateTimeGMT(LocalDateTime.now());
+            return careActivityRepository.save(careActivity);
+        } else {
+            throw new PatientIsNotActiveException();
         }
     }
 
     @Override
     public CareActivity update(CareActivity careActivity) {
-        try {
-            CareActivity existingCareActivity = getCareActivityById(careActivity.getCareActivityId());
-            patientsClient.getPatientByMPI(existingCareActivity.getMasterPatientIdentifier());
+        CareActivity existingCareActivity = careActivityMapper
+                .CADTOtoCA(getCareActivityById(careActivity.getCareActivityId()));
 
-            existingCareActivity.setCareActivityComment(careActivity.getCareActivityComment());
-            existingCareActivity.setState(careActivity.getState());
-            existingCareActivity.setUpdateDateTimeGMT(careActivity.getUpdateDateTimeGMT());
+        existingCareActivity.setCareActivityComment(careActivity.getCareActivityComment());
+        existingCareActivity.setState(careActivity.getState());
+        existingCareActivity.setUpdateDateTimeGMT(LocalDateTime.now());
 
-            return careActivityRepository.save(existingCareActivity);
-        } catch (Exception e) {
-            log.severe(e.getMessage());
-            throw new CustomFailedToUpdateEntityException();
-        }
+        return careActivityRepository.save(existingCareActivity);
     }
 
     @Override
     public boolean delete(String id) {
-        try {
-            getCareActivityById(id);
-            careActivityRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            log.severe(e.getMessage());
-            throw new CustomFailedToDeleteEntityException(CareActivity.class);
-        }
+        careActivityRepository.deleteById(id);
+        return true;
+    }
+
+    @Override
+    public int deleteById(String id) {
+        return careActivityRepository.customDeleteById(id);
     }
 }

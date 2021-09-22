@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    function:
+      definition: "consume"
+    stream:
+      bindings:
+        consume-in-0:
+          destination: Patient-deactivation-event
+    gcp:
+      spanner:
+        database: ${DB}
+        instance-id: ${INSTANCE_ID}
+        project-id: ${PROJECT_ID}
+
+
+
