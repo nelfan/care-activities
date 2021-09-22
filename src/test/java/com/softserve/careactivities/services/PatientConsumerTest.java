@@ -7,13 +7,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.ClassRule;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -50,17 +45,12 @@ class PatientConsumerTest {
     PatientConsumer patientConsumer;
 
     @MockBean
-    CareActivityRepository careActivityRepositoryMock;
+    CareActivityRepository careActivityRepository;
 
     private final String MPI = "MPI-test-value";
 
     @Value("${spring.cloud.stream.bindings.consume-in-0.destination}")
     private String topic;
-
-    @BeforeEach
-    public void setUp() {
-
-    }
 
     @AfterAll()
     static void tearDown() {
@@ -70,27 +60,19 @@ class PatientConsumerTest {
     @Test
     void shouldConsumeInputMPI() {
 
-        int countOfOutputMessages = 3;
-
         KafkaProducer<String, String> producer = new KafkaProducer<>(
                 ImmutableMap.of(
                         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()
                 ), new StringSerializer(), new StringSerializer()
         );
 
-        for (int i = 0; i < countOfOutputMessages; i++) {
-            producer.send(new ProducerRecord<>(topic, MPI));
-        }
+        producer.send(new ProducerRecord<>(topic, MPI));
 
-        doAnswer(invocation -> {
-            String actualMPI = invocation.getArgument(0);
-            Assertions.assertEquals(MPI, actualMPI);
-            return null;
-        }).when(careActivityRepositoryMock).declineAllCareActivitiesByMPI(MPI);
+        doNothing().when(careActivityRepository).declineAllCareActivitiesByMPI(MPI);
 
         producer.close();
 
-        verify(careActivityRepositoryMock, timeout(5000).times(countOfOutputMessages))
+        verify(careActivityRepository, timeout(5000).times(1))
                 .declineAllCareActivitiesByMPI(MPI);
     }
 }
